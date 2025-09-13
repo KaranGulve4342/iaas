@@ -38,6 +38,8 @@
   "homepage": "https://github.com/KaranGulve4342/iaas#readme",
   "dependencies": {
     "@neondatabase/serverless": "^1.0.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.2",
     "drizzle-orm": "^0.44.5",
     "express": "^5.1.0",
