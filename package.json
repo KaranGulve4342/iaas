@@ -1,0 +1,27 @@
+{
+  "name": "iaas",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KaranGulve4342/iaas.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/KaranGulve4342/iaas/issues"
+  },
+  "homepage": "https://github.com/KaranGulve4342/iaas#readme",
+  "dependencies": {
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0"
+  }
+}
