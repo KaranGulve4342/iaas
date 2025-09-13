@@ -4,14 +4,14 @@
   "description": "",
   "main": "index.js",
   "imports": {
-    "#config/*": "./config/*.js",
-    "#controllers/*": "./controllers/*.js",
-    "#models/*": "./models/*.js",
-    "#middlewares/*": "./middlewares/*.js",
-    "#utils/*": "./utils/*.js",
-    "#routes/*": "./routes/*.js",
-    "#services/*": "./services/*.js",
-    "#validations/*": "./validations/*.js"
+    "#config/*": "./src/config/*",
+    "#controllers/*": "./src/controllers/*",
+    "#models/*": "./src/models/*",
+    "#middlewares/*": "./src/middlewares/*",
+    "#utils/*": "./src/utils/*",
+    "#routes/*": "./src/routes/*",
+    "#services/*": "./src/services/*",
+    "#validations/*": "./src/validations/*"
   },
   "scripts": {
     "start": "node src/index.js",
