@@ -3,6 +3,16 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "imports": {
+    "#config/*": "./config/*.js",
+    "#controllers/*": "./controllers/*.js",
+    "#models/*": "./models/*.js",
+    "#middlewares/*": "./middlewares/*.js",
+    "#utils/*": "./utils/*.js",
+    "#routes/*": "./routes/*.js",
+    "#services/*": "./services/*.js",
+    "#validations/*": "./validations/*.js"
+  },
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
