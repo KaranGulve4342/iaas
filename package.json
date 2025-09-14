@@ -8,29 +8,26 @@
     "#src/*": "./src/*",
     "#config/*": "./src/config/*",
     "#controllers/*": "./src/controllers/*",
-    "#models/*": "./src/models/*",
     "#middleware/*": "./src/middleware/*",
-    "#utils/*": "./src/utils/*",
+    "#models/*": "./src/models/*",
     "#routes/*": "./src/routes/*",
     "#services/*": "./src/services/*",
+    "#utils/*": "./src/utils/*",
     "#validations/*": "./src/validations/*"
   },
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
     "dev:docker": "sh ./scripts/dev.sh",
     "prod:docker": "sh ./scripts/prod.sh",
-    "db:migrate": "drizzle-kit migrate",
-    "db:generate": "drizzle-kit generate",
-    "db:push": "drizzle-kit push",
-    "db:studio": "drizzle-kit studio",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
-    "test:watch": "npm test -- --watch",
-    "test:coverage": "npm test -- --coverage",
-    "lint": "eslint src/**/*.js",
-    "lint:fix": "eslint src/**/*.js --fix",
-    "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "repository": {
     "type": "git",
@@ -78,27 +75,5 @@
   "engines": {
     "node": ">=20.0.0",
     "npm": ">=10.0.0"
-  },
-  "jest": {
-    "preset": "default",
-    "testEnvironment": "node",
-    "extensionsToTreatAsEsm": [".js"],
-    "globals": {
-      "NODE_OPTIONS": "--experimental-vm-modules"
-    },
-    "transform": {},
-    "testMatch": [
-      "**/tests/**/*.test.js",
-      "**/__tests__/**/*.js"
-    ],
-    "collectCoverageFrom": [
-      "src/**/*.js",
-      "!src/index.js",
-      "!src/server.js",
-      "!src/config/database.js"
-    ],
-    "coverageDirectory": "coverage",
-    "coverageReporters": ["text", "lcov", "html"],
-    "setupFilesAfterEnv": ["<rootDir>/tests/setup.js"]
   }
 }
