@@ -9,8 +9,10 @@ WORKDIR /app
 # Copy Package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Generate package-lock.json if it doesn't exist, then install dependencies
+RUN if [ ! -f package-lock.json ]; then npm install --package-lock-only; fi && \
+    npm ci --only=production && \
+    npm cache clean --force
 
 # Copy source code
 COPY . .

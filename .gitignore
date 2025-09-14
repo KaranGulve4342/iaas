@@ -4,7 +4,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-package-lock.json
 yarn.lock
 .pnpm-debug.log
 
@@ -41,4 +40,5 @@ temp/
 
 # Misc
 *.tgz
-!.github.neon_local/
+!.github/
+.neon_local/
