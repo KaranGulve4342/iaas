@@ -1,13 +1,39 @@
 import logger from '#config/logger.js';
-import { signupSchema, signInSchema } from '#validations/auth.validation.js';
+import {
+  getAllUsers,
+  getUserById,
+  updateUser,
+  deleteUser,
+} from '#services/users.service.js';
+import {
+  userIdSchema,
+  updateUserSchema,
+} from '#validations/users.validation.js';
 import { formatValidationError } from '#utils/format.js';
-import { createUser, authenticateUser } from '#services/auth.service.js';
-import { jwttoken } from '#utils/jwt.js';
-import { cookies } from '#utils/cookies.js';
 
-export const signup = async (req, res, next) => {
+export const fetchAllUsers = async (req, res, next) => {
   try {
-    const validationResult = signupSchema.safeParse(req.body);
+    logger.info('Getting users...');
+
+    const allUsers = await getAllUsers();
+
+    res.json({
+      message: 'Successfully retrieved users',
+      users: allUsers,
+      count: allUsers.length,
+    });
+  } catch (e) {
+    logger.error(e);
+    next(e);
+  }
+};
+
+export const fetchUserById = async (req, res, next) => {
+  try {
+    logger.info(`Getting user by id: ${req.params.id}`);
+
+    // Validate the user ID parameter
+    const validationResult = userIdSchema.safeParse({ id: req.params.id });
 
     if (!validationResult.success) {
       return res.status(400).json({
@@ -16,42 +42,109 @@ export const signup = async (req, res, next) => {
       });
     }
 
-    const { name, email, password, role } = validationResult.data;
+    const { id } = validationResult.data;
+    const user = await getUserById(id);
 
-    const user = await createUser({ name, email, password, role });
-
-    const token = jwttoken.sign({
-      id: user.id,
-      email: user.email,
-      role: user.role,
-    });
-
-    cookies.set(res, 'token', token);
-
-    logger.info(`User registered successfully: ${email}`);
-    res.status(201).json({
-      message: 'User registered',
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
+    logger.info(`User ${user.email} retrieved successfully`);
+    res.json({
+      message: 'User retrieved successfully',
+      user,
     });
   } catch (e) {
-    logger.error('Signup error', e);
+    logger.error(`Error fetching user by id: ${e.message}`);
 
-    if (e.message === 'User with this email already exists') {
-      return res.status(409).json({ error: 'Email already exist' });
+    if (e.message === 'User not found') {
+      return res.status(404).json({ error: 'User not found' });
     }
 
     next(e);
   }
 };
 
-export const signIn = async (req, res, next) => {
+export const updateUserById = async (req, res, next) => {
   try {
-    const validationResult = signInSchema.safeParse(req.body);
+    logger.info(`Updating user: ${req.params.id}`);
+
+    // Validate the user ID parameter
+    const idValidationResult = userIdSchema.safeParse({ id: req.params.id });
+
+    if (!idValidationResult.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: formatValidationError(idValidationResult.error),
+      });
+    }
+
+    // Validate the update data
+    const updateValidationResult = updateUserSchema.safeParse(req.body);
+
+    if (!updateValidationResult.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: formatValidationError(updateValidationResult.error),
+      });
+    }
+
+    const { id } = idValidationResult.data;
+    const updates = updateValidationResult.data;
+
+    // Authorization checks
+    if (!req.user) {
+      return res.status(401).json({
+        error: 'Authentication required',
+        message: 'You must be logged in to update user information',
+      });
+    }
+
+    // Allow users to update only their own information (except role)
+    if (req.user.role !== 'admin' && req.user.id !== id) {
+      return res.status(403).json({
+        error: 'Access denied',
+        message: 'You can only update your own information',
+      });
+    }
+
+    // Only admin users can change roles
+    if (updates.role && req.user.role !== 'admin') {
+      return res.status(403).json({
+        error: 'Access denied',
+        message: 'Only administrators can change user roles',
+      });
+    }
+
+    // Remove role from updates if non-admin user is trying to update their own profile
+    if (req.user.role !== 'admin') {
+      delete updates.role;
+    }
+
+    const updatedUser = await updateUser(id, updates);
+
+    logger.info(`User ${updatedUser.email} updated successfully`);
+    res.json({
+      message: 'User updated successfully',
+      user: updatedUser,
+    });
+  } catch (e) {
+    logger.error(`Error updating user: ${e.message}`);
+
+    if (e.message === 'User not found') {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (e.message === 'Email already exists') {
+      return res.status(409).json({ error: 'Email already exists' });
+    }
+
+    next(e);
+  }
+};
+
+export const deleteUserById = async (req, res, next) => {
+  try {
+    logger.info(`Deleting user: ${req.params.id}`);
+
+    // Validate the user ID parameter
+    const validationResult = userIdSchema.safeParse({ id: req.params.id });
 
     if (!validationResult.success) {
       return res.status(400).json({
@@ -60,49 +153,46 @@ export const signIn = async (req, res, next) => {
       });
     }
 
-    const { email, password } = validationResult.data;
+    const { id } = validationResult.data;
 
-    const user = await authenticateUser({ email, password });
-
-    const token = jwttoken.sign({
-      id: user.id,
-      email: user.email,
-      role: user.role,
-    });
-
-    cookies.set(res, 'token', token);
-
-    logger.info(`User signed in successfully: ${email}`);
-    res.status(200).json({
-      message: 'User signed in successfully',
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    });
-  } catch (e) {
-    logger.error('Sign in error', e);
-
-    if (e.message === 'User not found' || e.message === 'Invalid password') {
-      return res.status(401).json({ error: 'Invalid credentials' });
+    // Authorization checks
+    if (!req.user) {
+      return res.status(401).json({
+        error: 'Authentication required',
+        message: 'You must be logged in to delete users',
+      });
     }
 
-    next(e);
-  }
-};
+    // Only admin users can delete users (prevent self-deletion or user deletion by non-admins)
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        error: 'Access denied',
+        message: 'Only administrators can delete users',
+      });
+    }
 
-export const signOut = async (req, res, next) => {
-  try {
-    cookies.clear(res, 'token');
+    // Prevent admins from deleting themselves
+    if (req.user.id === id) {
+      return res.status(403).json({
+        error: 'Operation denied',
+        message: 'You cannot delete your own account',
+      });
+    }
 
-    logger.info('User signed out successfully');
-    res.status(200).json({
-      message: 'User signed out successfully',
+    const deletedUser = await deleteUser(id);
+
+    logger.info(`User ${deletedUser.email} deleted successfully`);
+    res.json({
+      message: 'User deleted successfully',
+      user: deletedUser,
     });
   } catch (e) {
-    logger.error('Sign out error', e);
+    logger.error(`Error deleting user: ${e.message}`);
+
+    if (e.message === 'User not found') {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
     next(e);
   }
 };
