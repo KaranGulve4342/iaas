@@ -37,6 +37,8 @@
   },
   "homepage": "https://github.com/KaranGulve4342/iaas#readme",
   "dependencies": {
+    "@arcjet/inspect": "^1.0.0-beta.11",
+    "@arcjet/node": "^1.0.0-beta.11",
     "@neondatabase/serverless": "^1.0.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
