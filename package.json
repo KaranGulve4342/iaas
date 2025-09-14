@@ -33,7 +33,12 @@
     "type": "git",
     "url": "git+https://github.com/KaranGulve4342/iaas.git"
   },
-  "keywords": ["node", "express", "api", "acquisitions"],
+  "keywords": [
+    "node",
+    "express",
+    "api",
+    "acquisitions"
+  ],
   "author": "Karan Gulve",
   "license": "ISC",
   "bugs": {
